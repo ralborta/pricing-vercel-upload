@@ -66,7 +66,12 @@ export default function Home() {
         <select value={dataset} onChange={e => setDataset(e.target.value)}>
           {DATASETS.map(d => <option key={d} value={d}>{d}</option>)}
         </select>
-        <input ref={fileRef} type="file" accept=".csv" />
+        <input
+          ref={fileRef}
+          type="file"
+          accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.xls,application/vnd.ms-excel,.csv,text/csv"
+          onClick={e=>{ (e.currentTarget as HTMLInputElement).value = ""; }}
+        />
         <button disabled={busy} onClick={upload}>Cargar dataset</button>
       </div>
 
