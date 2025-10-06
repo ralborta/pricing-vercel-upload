@@ -1,5 +1,5 @@
 'use client';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const DATASETS = ['products','costs','sales','supplier_prices','competitors'];
 
@@ -9,6 +9,14 @@ export default function Home() {
   const [busy, setBusy] = useState(false);
   const [cfg, setCfg] = useState({ markup:0.70, iva:0.21, roundTo:100 });
   const [preview, setPreview] = useState<any[] | null>(null);
+  const [dsState, setDsState] = useState<any>({});
+  const [msg, setMsg] = useState<string>('');
+
+  useEffect(()=>{ (async()=>{
+    const r = await fetch('/api/datasets/summary');
+    const j = await r.json();
+    if (r.ok) setDsState(j.files||{});
+  })(); },[]);
 
   const upload = async () => {
     if (!fileRef.current?.files?.[0]) return alert('Elegí un CSV');
@@ -20,7 +28,8 @@ export default function Home() {
     const json = await res.json();
     setBusy(false);
     if (!res.ok) return alert(json.error || 'Error');
-    alert(`OK: ${json.dataset} (${json.rows} filas)`);
+    setMsg(`OK: ${json.dataset} (${json.rows} filas)`);
+    const r = await fetch('/api/datasets/summary'); const j = await r.json(); if (r.ok) setDsState(j.files||{});
   };
 
   const previewPricing = async () => {
@@ -53,6 +62,14 @@ export default function Home() {
   return (
     <div style={{ display:'grid', gap:16 }}>
       <h1>Subir archivos de base</h1>
+      {msg && <p style={{ color:'#b3e6ff' }}>{msg}</p>}
+      <div style={{ display:'flex', gap:12, color:'#a7a1c2', fontSize:13 }}>
+        <div>products: {dsState?.products?.name || '—'}</div>
+        <div>sales: {dsState?.sales?.name || '—'}</div>
+        <div>competitors: {dsState?.competitors?.name || '—'}</div>
+        <div>costs: {dsState?.costs?.name || '—'}</div>
+        <div>supplier_prices: {dsState?.supplier_prices?.name || '—'}</div>
+      </div>
       <p>Formatos esperados:</p>
       <ul style={{ color:'#a7a1c2' }}>
         <li><b>products</b>: sku, descripcion, costo</li>
@@ -83,7 +100,14 @@ export default function Home() {
           <label>Markup <input type="number" step="0.01" value={cfg.markup} onChange={e => setCfg({ ...cfg, markup: Number(e.target.value) })}/></label>
           <label>IVA <input type="number" step="0.01" value={cfg.iva} onChange={e => setCfg({ ...cfg, iva: Number(e.target.value) })}/></label>
           <label>Redondeo <input type="number" value={cfg.roundTo} onChange={e => setCfg({ ...cfg, roundTo: Number(e.target.value) })}/></label>
-          <button disabled={busy} onClick={previewPricing}>Preview</button>
+          <button disabled={busy} onClick={previewPricing}>Preview (archivo)</button>
+          <button disabled={busy} onClick={async()=>{
+            setBusy(true);
+            const fd = new FormData(); fd.append('config', JSON.stringify(cfg));
+            const res = await fetch('/api/pricing/preview', { method:'POST', body: fd });
+            const json = await res.json(); setBusy(false);
+            if (!res.ok) return alert(json.error||'Error'); setPreview(json.preview);
+          }}>Preview (últimos datasets)</button>
           <button disabled={busy || !preview} onClick={applyPricing}>Apply</button>
         </div>
 
