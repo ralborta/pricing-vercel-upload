@@ -12,8 +12,11 @@ export async function POST(req: NextRequest) {
   if (!file) return NextResponse.json({ error:'missing file' }, { status: 400 });
 
   const text = await file.text();
-  const parsed = Papa.parse(text, { header: true, skipEmptyLines: true });
-  if (parsed.errors.length) return NextResponse.json({ error: parsed.errors.map(e=>e.message).join(', ') }, { status: 400 });
+  const parsed = Papa.parse(text, { header: true, skipEmptyLines: true } as any);
+  if ((parsed as any).errors?.length) {
+    const msgs = ((parsed as any).errors as any[]).map((e: any) => e?.message ?? String(e));
+    return NextResponse.json({ error: msgs.join(', ') }, { status: 400 });
+  }
   const rows = (parsed.data as any[]).filter(Boolean);
 
   const ts = Date.now();
