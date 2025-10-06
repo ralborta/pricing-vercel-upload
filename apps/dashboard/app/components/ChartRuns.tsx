@@ -1,5 +1,5 @@
 "use client";
-import { Area, AreaChart, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, defs, linearGradient, stop } from "recharts";
+import { Area, AreaChart, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 
 export function ChartRuns({ data }: { data: any[] }) {
   const chartData = data.map(r => ({
