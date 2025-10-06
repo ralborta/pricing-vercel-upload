@@ -47,17 +47,31 @@ export default function Home() {
   };
 
   const applyPricing = async () => {
-    if (!preview) return alert('Primero hacé Preview');
     setBusy(true);
-    const res = await fetch('/api/pricing/apply', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ rows: preview, config: cfg })
-    });
-    const json = await res.json();
-    setBusy(false);
-    if (!res.ok) return alert(json.error || 'Error');
-    alert(`Precios aplicados. Archivo: ${json.url}`);
+    let rows = preview;
+    try {
+      if (!rows) {
+        const fd = new FormData();
+        fd.append('config', JSON.stringify(cfg));
+        const pre = await fetch('/api/pricing/preview', { method:'POST', body: fd });
+        const pj = await pre.json();
+        if (!pre.ok) throw new Error(pj.error || 'Error generando preview');
+        rows = pj.preview;
+        setPreview(rows);
+      }
+      const res = await fetch('/api/pricing/apply', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ rows, config: cfg })
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || 'Error guardando');
+      alert(`Precios aplicados. Archivo: ${json.url}`);
+    } catch (e:any) {
+      alert(e.message || 'Error');
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
@@ -81,7 +95,7 @@ export default function Home() {
           if (!res.ok) return alert(json.error||'Error'); setPreview(json.preview);
         }}
         >Generar Pricing ahora</button>
-        <button className="px-3 py-1.5 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50" disabled={busy || !preview} onClick={applyPricing}>Aplicar (guardar CSV)</button>
+        <button className="px-3 py-1.5 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50" disabled={busy} onClick={applyPricing}>Aplicar (guardar CSV)</button>
         {!ready && <span className="text-[12px] text-red-300">Subí primero products (sku, descripcion, costo)</span>}
       </div>
       <p>Formatos esperados:</p>
@@ -122,7 +136,7 @@ export default function Home() {
             const json = await res.json(); setBusy(false);
             if (!res.ok) return alert(json.error||'Error'); setPreview(json.preview);
           }}>Preview (últimos datasets)</button>
-          <button className="px-3 py-1.5 rounded-lg bg-brand-600 text-white hover:bg-brand-700 disabled:opacity-50" disabled={busy || !preview} onClick={applyPricing}>Apply</button>
+          <button className="px-3 py-1.5 rounded-lg bg-brand-600 text-white hover:bg-brand-700 disabled:opacity-50" disabled={busy} onClick={applyPricing}>Apply</button>
         </div>
 
         {preview && (
