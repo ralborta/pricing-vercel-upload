@@ -5,9 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { latestUrls, loadDataset } from "@/src/lib/datasets";
 import { computePricing, PricingCfg } from "@/src/lib/pricing";
 
-export const runtime = 'nodejs';
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+// flags already declared above
 
 export async function POST(req: NextRequest) {
   const form = await req.formData().catch(()=>null);
