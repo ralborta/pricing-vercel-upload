@@ -9,14 +9,18 @@ type KPI = { name: string; value: string };
 export default function Home() {
   const [kpis, setKpis] = useState<KPI[]>([]);
   const [runs, setRuns] = useState<any[]>([]);
-  const [donut, setDonut] = useState<Array<{ name: string; value: number }>>([]);
+  const [donut, setDonut] = useState<Array<{ name: string; value: number }>>([
+    { name: "Optimo", value: 72 },
+    { name: "Advertencia", value: 20 },
+    { name: "Critico", value: 8 },
+  ]);
 
   useEffect(() => {
     (async () => {
       try {
         const r = await fetch("/api/analytics/overview");
         const j = await r.json();
-        if (r.ok){ setKpis(j.kpis || []); setDonut(j.distribution || []); }
+        if (r.ok){ setKpis(j.kpis || []); setDonut(j.distribution?.length ? j.distribution : donut); }
       } catch {}
       try {
         const r2 = await fetch("/api/agents/runs/list");

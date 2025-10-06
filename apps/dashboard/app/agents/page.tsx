@@ -22,7 +22,13 @@ export default function AgentsDashboard() {
     (async () => {
       const r1 = await fetch('/api/agents/runs/list');
       const j1 = await r1.json();
-      setRuns(j1.runs || []);
+      const demoRuns = Array.from({ length: 10 }).map((_,i)=>({
+        ts: Date.now() - (9-i)*24*60*60*1000,
+        status: 'ok',
+        items: 20 + Math.round(Math.random()*60),
+        note: 'Demo'
+      }));
+      setRuns((j1.runs && j1.runs.length ? j1.runs : demoRuns));
       const r2 = await fetch('/api/agents/config/get');
       const j2 = await r2.json();
       setConfig(j2.config || DEMO_CONFIG);
