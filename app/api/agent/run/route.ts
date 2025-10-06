@@ -4,7 +4,7 @@ export const revalidate = 0;
 import { NextResponse } from "next/server";
 import { list } from "@vercel/blob";
 import { blobPut } from "@/src/lib/blob";
-import { latestUrls, loadDataset } from "@/src/lib/datasets";
+import { latestUrls, loadDataset, normalizeDataset } from "@/src/lib/datasets";
 import { computePricing } from "@/src/lib/pricing";
 
 async function fetchText(url: string) { const r = await fetch(url); return await r.text(); }
@@ -35,12 +35,16 @@ export async function POST() {
   };
 
   const urls = await latestUrls();
-  const [products, sales, competitors, costs] = await Promise.all([
+  const [pRaw, sRaw, cRaw, kRaw] = await Promise.all([
     loadDataset(urls.products || null),
     loadDataset(urls.sales || null),
     loadDataset(urls.competitors || null),
     loadDataset(urls.costs || null),
   ]);
+  const products = normalizeDataset('products', pRaw);
+  const sales = normalizeDataset('sales', sRaw);
+  const competitors = normalizeDataset('competitors', cRaw);
+  const costs = normalizeDataset('costs', kRaw);
   if (!products.length) return NextResponse.json({ ok:false, note:'Sin products' }, { status: 200 });
   const pricedAll = computePricing({ products, sales, competitors, costs, cfg: cfg?.rules || { markup:0.70, iva:0.21, roundTo:100 } });
   const priced = pricedAll.map(r => ({ sku:r.sku, descripcion:r.descripcion, costo:r.costo, precio_final:r.precioFinal }));
