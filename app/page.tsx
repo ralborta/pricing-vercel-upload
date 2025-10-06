@@ -61,10 +61,10 @@ export default function Home() {
   };
 
   return (
-    <div style={{ display:'grid', gap:16 }}>
-      <h1>Subir archivos de base</h1>
-      {msg && <p style={{ color:'#b3e6ff' }}>{msg}</p>}
-      <div style={{ display:'flex', gap:16, alignItems:'center', color:'#a7a1c2', fontSize:13, flexWrap:'wrap' }}>
+    <div className="grid gap-4">
+      <h1 className="text-xl font-semibold text-[#2b2665]">Subir archivos de base</h1>
+      {msg && <p className="text-[#b3e6ff] text-sm">{msg}</p>}
+      <div className="flex gap-2 items-center text-[13px] text-gray-500 flex-wrap">
         <div>products: {dsState?.products?.name ? (<a href={dsState.products.url} style={{ color:'#9ae6ff' }}>{dsState.products.name}</a>) : '—'}</div>
         <div>sales: {dsState?.sales?.name ? (<a href={dsState.sales.url} style={{ color:'#9ae6ff' }}>{dsState.sales.name}</a>) : '—'}</div>
         <div>competitors: {dsState?.competitors?.name ? (<a href={dsState.competitors.url} style={{ color:'#9ae6ff' }}>{dsState.competitors.name}</a>) : '—'}</div>
@@ -72,8 +72,8 @@ export default function Home() {
         <div>supplier_prices: {dsState?.supplier_prices?.name ? (<a href={dsState.supplier_prices.url} style={{ color:'#9ae6ff' }}>{dsState.supplier_prices.name}</a>) : '—'}</div>
       </div>
 
-      <div style={{ marginTop:12, display:'flex', gap:12, alignItems:'center' }}>
-        <button disabled={!ready || busy} onClick={async()=>{
+      <div className="mt-2 flex gap-3 items-center">
+        <button className="px-3 py-1.5 rounded-lg bg-brand-600 text-white hover:bg-brand-700 disabled:opacity-50" disabled={!ready || busy} onClick={async()=>{
           setBusy(true);
           const fd = new FormData(); fd.append('config', JSON.stringify(cfg));
           const res = await fetch('/api/pricing/preview', { method:'POST', body: fd });
@@ -81,8 +81,8 @@ export default function Home() {
           if (!res.ok) return alert(json.error||'Error'); setPreview(json.preview);
         }}
         >Generar Pricing ahora</button>
-        <button disabled={busy || !preview} onClick={applyPricing}>Aplicar (guardar CSV)</button>
-        {!ready && <span style={{ color:'#ffb3b3', fontSize:12 }}>Subí primero products (sku, descripcion, costo)</span>}
+        <button className="px-3 py-1.5 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50" disabled={busy || !preview} onClick={applyPricing}>Aplicar (guardar CSV)</button>
+        {!ready && <span className="text-[12px] text-red-300">Subí primero products (sku, descripcion, costo)</span>}
       </div>
       <p>Formatos esperados:</p>
       <ul style={{ color:'#a7a1c2' }}>
@@ -93,7 +93,7 @@ export default function Home() {
         <li><b>competitors</b>: sku, competidor, precio, fecha</li>
       </ul>
 
-      <div style={{ display:'flex', gap:12, alignItems:'center' }}>
+      <div className="flex gap-3 items-center">
         <select value={dataset} onChange={e => setDataset(e.target.value)}>
           {DATASETS.map(d => <option key={d} value={d}>{d}</option>)}
         </select>
@@ -103,26 +103,26 @@ export default function Home() {
           accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.xls,application/vnd.ms-excel,.csv,text/csv"
           onClick={e=>{ (e.currentTarget as HTMLInputElement).value = ""; }}
         />
-        <button disabled={busy} onClick={upload}>Cargar dataset</button>
+        <button className="px-3 py-1.5 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50" disabled={busy} onClick={upload}>Cargar dataset</button>
       </div>
 
       <hr style={{ borderColor:'#2d215c' }} />
 
       <section>
-        <h2>Preview / Apply del Pricing</h2>
-        <div style={{ display:'flex', gap:12, alignItems:'center' }}>
-          <label>Markup <input type="number" step="0.01" value={cfg.markup} onChange={e => setCfg({ ...cfg, markup: Number(e.target.value) })}/></label>
-          <label>IVA <input type="number" step="0.01" value={cfg.iva} onChange={e => setCfg({ ...cfg, iva: Number(e.target.value) })}/></label>
-          <label>Redondeo <input type="number" value={cfg.roundTo} onChange={e => setCfg({ ...cfg, roundTo: Number(e.target.value) })}/></label>
-          <button disabled={busy} onClick={previewPricing}>Preview (archivo)</button>
-          <button disabled={busy} onClick={async()=>{
+        <h2 className="text-lg font-semibold text-[#2b2665]">Preview / Apply del Pricing</h2>
+        <div className="flex gap-3 items-center">
+          <label className="text-sm text-gray-600">Markup <input className="ml-1 w-24 px-2 py-1 rounded-lg border border-gray-300" type="number" step="0.01" value={cfg.markup} onChange={e => setCfg({ ...cfg, markup: Number(e.target.value) })}/></label>
+          <label className="text-sm text-gray-600">IVA <input className="ml-1 w-24 px-2 py-1 rounded-lg border border-gray-300" type="number" step="0.01" value={cfg.iva} onChange={e => setCfg({ ...cfg, iva: Number(e.target.value) })}/></label>
+          <label className="text-sm text-gray-600">Redondeo <input className="ml-1 w-28 px-2 py-1 rounded-lg border border-gray-300" type="number" value={cfg.roundTo} onChange={e => setCfg({ ...cfg, roundTo: Number(e.target.value) })}/></label>
+          <button className="px-3 py-1.5 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50" disabled={busy} onClick={previewPricing}>Preview (archivo)</button>
+          <button className="px-3 py-1.5 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50" disabled={busy} onClick={async()=>{
             setBusy(true);
             const fd = new FormData(); fd.append('config', JSON.stringify(cfg));
             const res = await fetch('/api/pricing/preview', { method:'POST', body: fd });
             const json = await res.json(); setBusy(false);
             if (!res.ok) return alert(json.error||'Error'); setPreview(json.preview);
           }}>Preview (últimos datasets)</button>
-          <button disabled={busy || !preview} onClick={applyPricing}>Apply</button>
+          <button className="px-3 py-1.5 rounded-lg bg-brand-600 text-white hover:bg-brand-700 disabled:opacity-50" disabled={busy || !preview} onClick={applyPricing}>Apply</button>
         </div>
 
         {preview && (
