@@ -52,9 +52,9 @@ export default function AgentsDashboard() {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <MetricCard title="Agentes Activos" value={<span className="inline-flex items-center gap-1"><Bot size={16}/> {activeAgents}</span>} color="green" />
-        <MetricCard title="Conexiones Activas" value={<span className="inline-flex items-center gap-1"><Network size={16}/> {activeConnections}</span>} color="blue" />
-        <MetricCard title="Próximo Proceso" value={<span className="inline-flex items-center gap-1"><Clock size={16}/> {nextRun}</span>} color="violet" />
+        <MetricCard title="Agentes Activos" value={activeAgents} color="green" icon={<Bot size={16} className="text-green-600"/>} />
+        <MetricCard title="Conexiones Activas" value={activeConnections} color="blue" icon={<Network size={16} className="text-blue-600"/>} />
+        <MetricCard title="Próximo Proceso" value={nextRun} color="violet" icon={<Clock size={16} className="text-violet-600"/>} />
         <MetricCard title="Ejecuciones Totales" value={totalRuns} color="blue" />
       </div>
 
