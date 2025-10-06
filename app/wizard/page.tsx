@@ -112,30 +112,30 @@ export default function Wizard() {
   }[step]), [step]);
 
   return (
-    <div style={{ display:'grid', gap:16 }}>
-      <h1>Wizard — Setup del Agente de Pricing</h1>
-      <p style={{ color:'#a7a1c2' }}>{stepTitle}</p>
-      {msg && <p style={{ color:'#b3e6ff' }}>{msg}</p>}
+    <div className="grid gap-6">
+      <h1 className="text-2xl font-semibold text-[#2b2665]">Wizard — Setup del Agente de Pricing</h1>
+      <p className="text-gray-500">{stepTitle}</p>
+      {msg && <p className="text-[#4f46e5] text-sm">{msg}</p>}
 
       {step === 1 && (
-        <section style={{ display:'grid', gap:12 }}>
-          <p>Subí <b>products</b> (Excel o CSV). Columnas: <code>sku, descripcion, costo</code>.</p>
+        <section className="bg-white border border-gray-100 rounded-xl shadow-soft p-5 grid gap-3">
+          <p className="text-gray-600">Subí <b>products</b> (Excel o CSV). Columnas: <code>sku, descripcion, costo</code>.</p>
 
           <div
             onDragOver={e=>e.preventDefault()}
             onDrop={e=>{ e.preventDefault(); const f=e.dataTransfer.files?.[0]; if (f){ const dt=new DataTransfer(); dt.items.add(f); if (productsFile.current) productsFile.current.files = dt.files; } }}
             onClick={()=>{ const el=document.getElementById('hiddenFileInput') as HTMLInputElement|null; el?.click(); }}
-            style={{ border:'1px dashed #ccc', padding:12, borderRadius:12, background:'#fff' }}
+            className="rounded-xl border border-dashed border-gray-300 p-6 bg-gray-50 hover:bg-gray-100 cursor-pointer"
           >
-            <div style={{ color:'#666', fontSize:13 }}>Arrastrá y soltá tu Excel/CSV aquí, o hacé clic para elegir</div>
+            <div className="text-sm text-gray-600">Arrastrá y soltá tu Excel/CSV aquí, o hacé clic para elegir</div>
             <input id="hiddenFileInput" type="file"
               accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.xls,application/vnd.ms-excel,.csv,text/csv"
-              style={{ display:'none' }}
+              className="hidden"
               onChange={e=>{ const f=e.currentTarget.files?.[0]; if (f){ const dt=new DataTransfer(); dt.items.add(f); if (productsFile.current) productsFile.current.files = dt.files; } }}
             />
           </div>
 
-          <div style={{ display:'flex', gap:12, alignItems:'center' }}>
+          <div className="flex gap-3 items-center flex-wrap">
             <input
               ref={productsFile}
               type="file"
@@ -143,46 +143,46 @@ export default function Wizard() {
               onClick={e=>{ (e.currentTarget as HTMLInputElement).value = ""; }}
               onChange={e=>{ const f=e.currentTarget.files?.[0]; if (f) console.log('Elegido:', f.name, f.type, f.size); }}
             />
-            <a href="/api/datasets/template/products" style={{ border:'1px solid #2d215c', padding:'8px 10px', borderRadius:8 }}>Template XLSX</a>
-            <button disabled={busy} onClick={uploadProductsAndNext}>Subir y continuar</button>
-            <button style={{ border:'1px solid #ccc', padding:'8px 10px', borderRadius:8 }} onClick={()=>{
+            <a className="px-3 py-1.5 rounded-lg border border-gray-300 hover:bg-gray-50" href="/api/datasets/template/products">Template XLSX</a>
+            <button className="px-3 py-1.5 rounded-lg bg-brand-600 text-white hover:bg-brand-700 disabled:opacity-50" disabled={busy} onClick={uploadProductsAndNext}>Subir y continuar</button>
+            <button className="px-3 py-1.5 rounded-lg border border-gray-300 hover:bg-gray-50" onClick={()=>{
               const f=productsFile.current?.files?.[0];
               alert(f?`OK: ${f.name} (${f.type})`:'Aún no elegiste archivo');
             }}>Test file</button>
-            <button disabled={busy} onClick={doPreviewLatest}>Preview ahora (usa últimos datasets)</button>
+            <button className="px-3 py-1.5 rounded-lg border border-gray-300 hover:bg-gray-50" disabled={busy} onClick={doPreviewLatest}>Preview ahora (usa últimos datasets)</button>
           </div>
-          <div style={{ color:'#a7a1c2' }}>Estado: {ico(status.products)} products</div>
+          <div className="text-sm text-gray-500">Estado: {ico(status.products)} products</div>
         </section>
       )}
 
       {step === 2 && (
-        <section style={{ display:'grid', gap:12 }}>
-          <p>Subí datasets opcionales (Excel/CSV). Descargá templates si hace falta.</p>
+        <section className="bg-white border border-gray-100 rounded-xl shadow-soft p-5 grid gap-3">
+          <p className="text-gray-600">Subí datasets opcionales (Excel/CSV). Descargá templates si hace falta.</p>
           {(['sales','competitors','costs','supplier_prices'] as OptionalDs[]).map(ds => (
-            <div key={ds} style={{ display:'flex', gap:12, alignItems:'center' }}>
-              <span style={{ width:160, textTransform:'capitalize' }}>{ds}</span>
+            <div key={ds} className="flex gap-3 items-center">
+              <span className="w-40 capitalize">{ds}</span>
               <input ref={el => (optRefs.current[ds] = el)} type="file" accept=".xlsx,.xls,.csv" />
-              <a href={`/api/datasets/template/${ds}`} style={{ border:'1px solid #2d215c', padding:'6px 8px', borderRadius:8 }}>Template XLSX</a>
-              <button disabled={busy} onClick={() => uploadOptional(ds)}>Subir</button>
+              <a className="px-2 py-1 rounded-lg border border-gray-300 hover:bg-gray-50" href={`/api/datasets/template/${ds}`}>Template XLSX</a>
+              <button className="px-3 py-1.5 rounded-lg border border-gray-300 hover:bg-gray-50" disabled={busy} onClick={() => uploadOptional(ds)}>Subir</button>
               <span>{ico(status[ds])}</span>
             </div>
           ))}
-          <div style={{ display:'flex', gap:12, marginTop:8 }}>
-            <button onClick={() => setStep(1)}>← Volver</button>
-            <button disabled={!canGoStep3} onClick={() => setStep(3)}>Continuar →</button>
+          <div className="flex gap-3 mt-2">
+            <button className="px-3 py-1.5 rounded-lg border border-gray-300 hover:bg-gray-50" onClick={() => setStep(1)}>← Volver</button>
+            <button className="px-3 py-1.5 rounded-lg bg-brand-600 text-white hover:bg-brand-700 disabled:opacity-50" disabled={!canGoStep3} onClick={() => setStep(3)}>Continuar →</button>
           </div>
         </section>
       )}
 
       {step === 3 && (
-        <section style={{ display:'grid', gap:12 }}>
-          <p>Definí reglas y hacé <b>Preview</b> usando el archivo de products del Paso 1.</p>
-          <div style={{ display:'flex', gap:12, alignItems:'center' }}>
-            <label>Markup <input type="number" step="0.01" value={cfg.markup} onChange={e => setCfg({ ...cfg, markup: Number(e.target.value) })} /></label>
-            <label>IVA <input type="number" step="0.01" value={cfg.iva} onChange={e => setCfg({ ...cfg, iva: Number(e.target.value) })} /></label>
-            <label>Redondeo <input type="number" value={cfg.roundTo} onChange={e => setCfg({ ...cfg, roundTo: Number(e.target.value) })} /></label>
-            <button disabled={busy} onClick={doPreview}>Preview (archivo)</button>
-            <button disabled={busy} onClick={doPreviewLatest}>Preview (últimos datasets)</button>
+        <section className="bg-white border border-gray-100 rounded-xl shadow-soft p-5 grid gap-3">
+          <p className="text-gray-600">Definí reglas y hacé <b>Preview</b> usando el archivo de products del Paso 1.</p>
+          <div className="flex gap-3 items-center">
+            <label className="text-sm text-gray-600">Markup <input className="ml-1 w-24 px-2 py-1 rounded-lg border border-gray-300" type="number" step="0.01" value={cfg.markup} onChange={e => setCfg({ ...cfg, markup: Number(e.target.value) })} /></label>
+            <label className="text-sm text-gray-600">IVA <input className="ml-1 w-24 px-2 py-1 rounded-lg border border-gray-300" type="number" step="0.01" value={cfg.iva} onChange={e => setCfg({ ...cfg, iva: Number(e.target.value) })} /></label>
+            <label className="text-sm text-gray-600">Redondeo <input className="ml-1 w-28 px-2 py-1 rounded-lg border border-gray-300" type="number" value={cfg.roundTo} onChange={e => setCfg({ ...cfg, roundTo: Number(e.target.value) })} /></label>
+            <button className="px-3 py-1.5 rounded-lg border border-gray-300 hover:bg-gray-50" disabled={busy} onClick={doPreview}>Preview (archivo)</button>
+            <button className="px-3 py-1.5 rounded-lg border border-gray-300 hover:bg-gray-50" disabled={busy} onClick={doPreviewLatest}>Preview (últimos datasets)</button>
           </div>
           {preview && (
             <div style={{ marginTop:12, overflow:'auto', border:'1px solid #2d215c' }}>
@@ -208,20 +208,20 @@ export default function Wizard() {
               </table>
             </div>
           )}
-          <div style={{ display:'flex', gap:12 }}>
-            <button onClick={() => setStep(2)}>← Volver</button>
-            <button disabled={!canGoStep4} onClick={() => setStep(4)}>Continuar →</button>
+          <div className="flex gap-3">
+            <button className="px-3 py-1.5 rounded-lg border border-gray-300 hover:bg-gray-50" onClick={() => setStep(2)}>← Volver</button>
+            <button className="px-3 py-1.5 rounded-lg bg-brand-600 text-white hover:bg-brand-700 disabled:opacity-50" disabled={!canGoStep4} onClick={() => setStep(4)}>Continuar →</button>
           </div>
         </section>
       )}
 
       {step === 4 && (
-        <section style={{ display:'grid', gap:12 }}>
-          <p>Aplicá los precios (genera un archivo en <code>pricing_results/</code>) y pasá a <b>Analytics</b>.</p>
-          <div style={{ display:'flex', gap:12 }}>
-            <button onClick={() => setStep(3)}>← Volver</button>
-            <button disabled={!preview || busy} onClick={doApply}>Apply</button>
-            <a href="/analytics" style={{ display:'inline-block', padding:'8px 12px', border:'1px solid #2d215c', borderRadius:8 }}>Ir a Analytics →</a>
+        <section className="bg-white border border-gray-100 rounded-xl shadow-soft p-5 grid gap-3">
+          <p className="text-gray-600">Aplicá los precios (genera un archivo en <code>pricing_results/</code>) y pasá a <b>Analytics</b>.</p>
+          <div className="flex gap-3 items-center">
+            <button className="px-3 py-1.5 rounded-lg border border-gray-300 hover:bg-gray-50" onClick={() => setStep(3)}>← Volver</button>
+            <button className="px-3 py-1.5 rounded-lg bg-brand-600 text-white hover:bg-brand-700 disabled:opacity-50" disabled={!preview || busy} onClick={doApply}>Apply</button>
+            <a className="px-3 py-1.5 rounded-lg border border-gray-300 hover:bg-gray-50" href="/analytics">Ir a Analytics →</a>
           </div>
         </section>
       )}
