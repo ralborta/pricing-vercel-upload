@@ -5,7 +5,7 @@ type Slice = { name: string; value: number; color: string };
 
 export function ChartDonut({ data }: { data: Array<{ name: string; value: number }> }) {
   const palette: Record<string,string> = {
-    Optimo: "#22c55e",
+    Optimo: "#16a34a",
     Advertencia: "#f59e0b",
     Critico: "#ef4444",
   };

@@ -3,7 +3,7 @@ export function AgentStatusCard({ config }: { config: any }) {
   const selectedDays = (config.schedule?.days || []).join(" · ");
   const formats = config.report?.formats ? Object.entries(config.report.formats).filter(([,v])=>v).map(([k])=>k.toUpperCase()).join(" · ") : "—";
   const badge = (ok:boolean, txt:string) => (
-    <span className={`px-2 py-0.5 rounded-md text-xs font-medium ${ok? 'bg-green-50 text-green-700':'bg-red-50 text-red-700'}`}>{txt}</span>
+    <span className={`px-2 py-0.5 rounded-md text-xs font-medium ${ok? 'bg-emerald-50 text-emerald-700':'bg-rose-50 text-rose-700'}`}>{txt}</span>
   );
   return (
     <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
