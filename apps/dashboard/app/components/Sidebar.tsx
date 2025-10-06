@@ -4,7 +4,8 @@ import { BrandLogo } from "./BrandLogo";
 
 export function Sidebar() {
   const links = [
-    { href: "/agents", label: "Dashboard", icon: <Home size={18}/> },
+    { href: "/", label: "Dashboard", icon: <Home size={18}/> },
+    { href: "/agents", label: "Agente", icon: <Bot size={18}/> },
     { href: "/wizard", label: "Wizard", icon: <Database size={18}/> },
     { href: "/analytics", label: "Analytics", icon: <Activity size={18}/> },
     { href: "/settings", label: "Configuración", icon: <Settings size={18}/> },
