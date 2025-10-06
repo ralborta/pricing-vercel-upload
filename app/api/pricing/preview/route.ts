@@ -2,7 +2,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 import { NextRequest, NextResponse } from "next/server";
-import { latestUrls, loadDataset, normalizeDataset } from "@/src/lib/datasets";
+import { latestUrls, loadDataset, normalizeDataset, attachSkuToCompetitors } from "@/src/lib/datasets";
 import { computePricing, PricingCfg } from "@/src/lib/pricing";
 
 // flags already declared above
@@ -21,7 +21,8 @@ export async function POST(req: NextRequest) {
   ]);
   const products = normalizeDataset('products', pRaw);
   const sales = normalizeDataset('sales', sRaw);
-  const competitors = normalizeDataset('competitors', cRaw);
+  let competitors = normalizeDataset('competitors', cRaw);
+  competitors = attachSkuToCompetitors(competitors, products);
   const costs = normalizeDataset('costs', kRaw);
 
   if (!products.length) return NextResponse.json({ error:"No hay products en datasets/" }, { status: 400 });

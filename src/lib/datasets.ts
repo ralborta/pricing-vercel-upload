@@ -65,10 +65,11 @@ export function normalizeDataset(name: string, rows: any[]): any[] {
   if (n === 'competitors') {
     return rows.map(r=>({
       sku: String(r.sku ?? r.SKU ?? '').trim(),
+      listing_title: r.listing_title ?? r.title ?? r.titulo ?? '',
       competidor: r.competidor ?? r.seller ?? r.vendedor ?? r.tienda ?? r.merchant ?? 'competidor',
       precio: toNumber(r.precio ?? r.price ?? r.competitor_price ?? r.precio_competidor ?? r.precio_ars ?? r.price_ars ?? r.precio_promedio),
       fecha: r.fecha ?? r.date ?? r.updated_at ?? ''
-    })).filter(r=>r.sku);
+    }));
   }
   if (n === 'supplier_prices') {
     return rows.map(r=>({
@@ -76,6 +77,34 @@ export function normalizeDataset(name: string, rows: any[]): any[] {
     })).filter(r=>r.sku);
   }
   return rows;
+}
+
+// --- Heurística para inferir sku en competidores a partir del listing_title y el catálogo de products
+const STOPWORDS = new Set(["ml","shoppro","tiendaoficial","bestprice","oficial","mercado","libre","store","shop","seller","128gb","256gb","512gb","gb"]);
+function tokenize(s: string): string[] {
+  return String(s||'')
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g,' ')
+    .split(/\s+/)
+    .filter(t => t && !STOPWORDS.has(t));
+}
+
+export function attachSkuToCompetitors(rawCompetitors: any[], products: any[]): any[] {
+  if (!rawCompetitors?.length) return [];
+  const prodTokens = products.map(p => ({ sku: p.sku, tokens: tokenize(p.descripcion || p.sku) }));
+  return rawCompetitors.map(c => {
+    if (c.sku) return c; // ya viene informado
+    const titleTokens = tokenize(c.listing_title || '');
+    let bestSku = '';
+    let bestScore = 0;
+    for (const pt of prodTokens){
+      const inter = pt.tokens.filter(t => titleTokens.includes(t));
+      const score = inter.length / Math.max(1, Math.min(pt.tokens.length, titleTokens.length));
+      if (score > bestScore){ bestScore = score; bestSku = pt.sku; }
+    }
+    if (bestScore >= 0.3) c.sku = bestSku; // umbral simple
+    return c;
+  }).filter(c => c.sku); // descarta filas sin poder inferir
 }
 
 

@@ -4,7 +4,7 @@ export const revalidate = 0;
 import { NextResponse } from "next/server";
 import { list } from "@vercel/blob";
 import { blobPut } from "@/src/lib/blob";
-import { latestUrls, loadDataset, normalizeDataset } from "@/src/lib/datasets";
+import { latestUrls, loadDataset, normalizeDataset, attachSkuToCompetitors } from "@/src/lib/datasets";
 import { computePricing } from "@/src/lib/pricing";
 
 async function fetchText(url: string) { const r = await fetch(url); return await r.text(); }
@@ -43,7 +43,8 @@ export async function POST() {
   ]);
   const products = normalizeDataset('products', pRaw);
   const sales = normalizeDataset('sales', sRaw);
-  const competitors = normalizeDataset('competitors', cRaw);
+  let competitors = normalizeDataset('competitors', cRaw);
+  competitors = attachSkuToCompetitors(competitors, products);
   const costs = normalizeDataset('costs', kRaw);
   if (!products.length) return NextResponse.json({ ok:false, note:'Sin products' }, { status: 200 });
   const pricedAll = computePricing({ products, sales, competitors, costs, cfg: cfg?.rules || { markup:0.70, iva:0.21, roundTo:100 } });
