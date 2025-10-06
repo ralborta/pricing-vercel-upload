@@ -1,5 +1,4 @@
 {
   "version": 2,
-  "builds": [{ "src": "apps/dashboard/next.config.mjs", "use": "@vercel/next" }],
-  "routes": [{ "src": "/(.*)", "dest": "apps/dashboard/$1" }]
+  "builds": [{ "src": "apps/dashboard/package.json", "use": "@vercel/next" }]
 }
