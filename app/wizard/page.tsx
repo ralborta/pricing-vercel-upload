@@ -120,10 +120,36 @@ export default function Wizard() {
       {step === 1 && (
         <section style={{ display:'grid', gap:12 }}>
           <p>Subí <b>products</b> (Excel o CSV). Columnas: <code>sku, descripcion, costo</code>.</p>
+
+          <div
+            onDragOver={e=>e.preventDefault()}
+            onDrop={e=>{ e.preventDefault(); const f=e.dataTransfer.files?.[0]; if (f){ const dt=new DataTransfer(); dt.items.add(f); if (productsFile.current) productsFile.current.files = dt.files; } }}
+            onClick={()=>{ const el=document.getElementById('hiddenFileInput') as HTMLInputElement|null; el?.click(); }}
+            style={{ border:'1px dashed #ccc', padding:12, borderRadius:12, background:'#fff' }}
+          >
+            <div style={{ color:'#666', fontSize:13 }}>Arrastrá y soltá tu Excel/CSV aquí, o hacé clic para elegir</div>
+            <input id="hiddenFileInput" type="file"
+              accept=",.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.xls,application/vnd.ms-excel,.csv,text/csv"
+              style={{ display:'none' }}
+              onChange={e=>{ const f=e.currentTarget.files?.[0]; if (f){ const dt=new DataTransfer(); dt.items.add(f); if (productsFile.current) productsFile.current.files = dt.files; } }}
+            />
+          </div>
+
           <div style={{ display:'flex', gap:12, alignItems:'center' }}>
-            <input ref={productsFile} type="file" accept=".xlsx,.xls,.csv" />
+            <input
+              ref={productsFile}
+              type="file"
+              accept=",.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.xls,application/vnd.ms-excel,.csv,text/csv"
+              onClick={e=>{ (e.currentTarget as HTMLInputElement).value = ""; }}
+              onChange={e=>{ const f=e.currentTarget.files?.[0]; if (f) console.log('Elegido:', f.name, f.type, f.size); }}
+            />
             <a href="/api/datasets/template/products" style={{ border:'1px solid #2d215c', padding:'8px 10px', borderRadius:8 }}>Template XLSX</a>
             <button disabled={busy} onClick={uploadProductsAndNext}>Subir y continuar</button>
+            <button style={{ border:'1px solid #ccc', padding:'8px 10px', borderRadius:8 }} onClick={()=>{
+              const f=productsFile.current?.files?.[0];
+              alert(f?`OK: ${f.name} (${f.type})`:'Aún no elegiste archivo');
+            }}>Test file</button>
+            <button disabled={busy} onClick={doPreviewLatest}>Preview ahora (usa últimos datasets)</button>
           </div>
           <div style={{ color:'#a7a1c2' }}>Estado: {ico(status.products)} products</div>
         </section>
