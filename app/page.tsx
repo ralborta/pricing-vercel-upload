@@ -11,6 +11,7 @@ export default function Home() {
   const [preview, setPreview] = useState<any[] | null>(null);
   const [dsState, setDsState] = useState<any>({});
   const [msg, setMsg] = useState<string>('');
+  const ready = Boolean(dsState?.products?.name);
 
   useEffect(()=>{ (async()=>{
     const r = await fetch('/api/datasets/summary');
@@ -63,12 +64,25 @@ export default function Home() {
     <div style={{ display:'grid', gap:16 }}>
       <h1>Subir archivos de base</h1>
       {msg && <p style={{ color:'#b3e6ff' }}>{msg}</p>}
-      <div style={{ display:'flex', gap:12, color:'#a7a1c2', fontSize:13 }}>
-        <div>products: {dsState?.products?.name || '—'}</div>
-        <div>sales: {dsState?.sales?.name || '—'}</div>
-        <div>competitors: {dsState?.competitors?.name || '—'}</div>
-        <div>costs: {dsState?.costs?.name || '—'}</div>
-        <div>supplier_prices: {dsState?.supplier_prices?.name || '—'}</div>
+      <div style={{ display:'flex', gap:16, alignItems:'center', color:'#a7a1c2', fontSize:13, flexWrap:'wrap' }}>
+        <div>products: {dsState?.products?.name ? (<a href={dsState.products.url} style={{ color:'#9ae6ff' }}>{dsState.products.name}</a>) : '—'}</div>
+        <div>sales: {dsState?.sales?.name ? (<a href={dsState.sales.url} style={{ color:'#9ae6ff' }}>{dsState.sales.name}</a>) : '—'}</div>
+        <div>competitors: {dsState?.competitors?.name ? (<a href={dsState.competitors.url} style={{ color:'#9ae6ff' }}>{dsState.competitors.name}</a>) : '—'}</div>
+        <div>costs: {dsState?.costs?.name ? (<a href={dsState.costs.url} style={{ color:'#9ae6ff' }}>{dsState.costs.name}</a>) : '—'}</div>
+        <div>supplier_prices: {dsState?.supplier_prices?.name ? (<a href={dsState.supplier_prices.url} style={{ color:'#9ae6ff' }}>{dsState.supplier_prices.name}</a>) : '—'}</div>
+      </div>
+
+      <div style={{ marginTop:12, display:'flex', gap:12, alignItems:'center' }}>
+        <button disabled={!ready || busy} onClick={async()=>{
+          setBusy(true);
+          const fd = new FormData(); fd.append('config', JSON.stringify(cfg));
+          const res = await fetch('/api/pricing/preview', { method:'POST', body: fd });
+          const json = await res.json(); setBusy(false);
+          if (!res.ok) return alert(json.error||'Error'); setPreview(json.preview);
+        }}
+        >Generar Pricing ahora</button>
+        <button disabled={busy || !preview} onClick={applyPricing}>Aplicar (guardar CSV)</button>
+        {!ready && <span style={{ color:'#ffb3b3', fontSize:12 }}>Subí primero products (sku, descripcion, costo)</span>}
       </div>
       <p>Formatos esperados:</p>
       <ul style={{ color:'#a7a1c2' }}>
