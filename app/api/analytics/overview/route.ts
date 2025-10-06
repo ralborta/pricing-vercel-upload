@@ -10,7 +10,9 @@ function parseCSV(text: string) { const parsed = Papa.parse(text, { header: true
 
 export async function GET() {
   const bucket = process.env.BLOB_BUCKET || "pricing-suite";
-  const blobs = await list({ token: process.env.BLOB_READ_WRITE_TOKEN, prefix: `${bucket}/datasets/` });
+  const token = process.env.BLOB_READ_WRITE_TOKEN;
+  if (!token) return NextResponse.json({ kpis: [], top: [] });
+  const blobs = await list({ token, prefix: `${bucket}/datasets/` });
   const idx = blobs.blobs.find(b => b.pathname.endsWith("datasets/index.json"));
   if (!idx) return NextResponse.json({ kpis: [], top: [] });
   const index = JSON.parse(await fetchText(idx.url));
