@@ -129,7 +129,7 @@ export default function Wizard() {
           >
             <div style={{ color:'#666', fontSize:13 }}>Arrastrá y soltá tu Excel/CSV aquí, o hacé clic para elegir</div>
             <input id="hiddenFileInput" type="file"
-              accept=",.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.xls,application/vnd.ms-excel,.csv,text/csv"
+              accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.xls,application/vnd.ms-excel,.csv,text/csv"
               style={{ display:'none' }}
               onChange={e=>{ const f=e.currentTarget.files?.[0]; if (f){ const dt=new DataTransfer(); dt.items.add(f); if (productsFile.current) productsFile.current.files = dt.files; } }}
             />
@@ -139,7 +139,7 @@ export default function Wizard() {
             <input
               ref={productsFile}
               type="file"
-              accept=",.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.xls,application/vnd.ms-excel,.csv,text/csv"
+              accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.xls,application/vnd.ms-excel,.csv,text/csv"
               onClick={e=>{ (e.currentTarget as HTMLInputElement).value = ""; }}
               onChange={e=>{ const f=e.currentTarget.files?.[0]; if (f) console.log('Elegido:', f.name, f.type, f.size); }}
             />
