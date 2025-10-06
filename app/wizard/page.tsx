@@ -79,6 +79,18 @@ export default function Wizard() {
     setPreview(json.preview);
   }
 
+  async function doPreviewLatest() {
+    setBusy(true);
+    const fd = new FormData();
+    fd.append('config', JSON.stringify(cfg));
+    const res = await fetch('/api/pricing/preview', { method: 'POST', body: fd });
+    const json = await res.json();
+    setBusy(false);
+    if (!res.ok) return setMsg(json.error || 'Error en preview');
+    setPreview(json.preview);
+    setMsg(`Preview listo. Usados → products:${json.used?.products} sales:${json.used?.sales} competitors:${json.used?.competitors} costs:${json.used?.costs}`);
+  }
+
   async function doApply() {
     if (!preview) return;
     setBusy(true);
@@ -143,7 +155,8 @@ export default function Wizard() {
             <label>Markup <input type="number" step="0.01" value={cfg.markup} onChange={e => setCfg({ ...cfg, markup: Number(e.target.value) })} /></label>
             <label>IVA <input type="number" step="0.01" value={cfg.iva} onChange={e => setCfg({ ...cfg, iva: Number(e.target.value) })} /></label>
             <label>Redondeo <input type="number" value={cfg.roundTo} onChange={e => setCfg({ ...cfg, roundTo: Number(e.target.value) })} /></label>
-            <button disabled={busy} onClick={doPreview}>Preview</button>
+            <button disabled={busy} onClick={doPreview}>Preview (archivo)</button>
+            <button disabled={busy} onClick={doPreviewLatest}>Preview (últimos datasets)</button>
           </div>
           {preview && (
             <div style={{ marginTop:12, overflow:'auto', border:'1px solid #2d215c' }}>

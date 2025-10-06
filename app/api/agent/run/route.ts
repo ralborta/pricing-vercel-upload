@@ -4,6 +4,8 @@ export const revalidate = 0;
 import { NextResponse } from "next/server";
 import { list } from "@vercel/blob";
 import { blobPut } from "@/src/lib/blob";
+import { latestUrls, loadDataset } from "@/src/lib/datasets";
+import { computePricing } from "@/src/lib/pricing";
 
 async function fetchText(url: string) { const r = await fetch(url); return await r.text(); }
 function parseCSV(text: string) { const [hdr, ...rows] = text.trim().split("\n"); const headers = hdr.split(","); return rows.map(line => Object.fromEntries(line.split(",").map((v,i)=>[headers[i], v]))); }
@@ -32,27 +34,16 @@ export async function POST() {
     return found?.url || null;
   };
 
-  const pUrl = latest('products');
-  if (!pUrl) return NextResponse.json({ ok:false, note:'Sin products' }, { status: 200 });
-
-  let products:any[] = [];
-  if (pUrl.endsWith('.csv')) {
-    const text = await fetchText(pUrl);
-    products = parseCSV(text);
-  } else {
-    const text = await fetchText(pUrl);
-    products = parseCSV(text);
-  }
-
-  const { markup, iva, roundTo } = cfg.rules || { markup:0.70, iva:0.21, roundTo:100 };
-  const roundToFn = (v:number, m:number)=> Math.round(v/m)*m;
-  const priced = products.map((r:any) => {
-    const costo = Number(r.costo ?? 0);
-    const base = costo*(1+markup);
-    const ivaVal = base*iva;
-    const final = roundToFn(base+ivaVal, roundTo);
-    return { sku:r.sku||'', descripcion:r.descripcion||'', costo, precio_final: final };
-  });
+  const urls = await latestUrls();
+  const [products, sales, competitors, costs] = await Promise.all([
+    loadDataset(urls.products || null),
+    loadDataset(urls.sales || null),
+    loadDataset(urls.competitors || null),
+    loadDataset(urls.costs || null),
+  ]);
+  if (!products.length) return NextResponse.json({ ok:false, note:'Sin products' }, { status: 200 });
+  const pricedAll = computePricing({ products, sales, competitors, costs, cfg: cfg?.rules || { markup:0.70, iva:0.21, roundTo:100 } });
+  const priced = pricedAll.map(r => ({ sku:r.sku, descripcion:r.descripcion, costo:r.costo, precio_final:r.precioFinal }));
 
   const ts = Date.now();
   const headers = ['sku','descripcion','costo','precio_final'];
